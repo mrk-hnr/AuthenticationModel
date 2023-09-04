@@ -22,6 +22,8 @@ app.get("/login", (request, respond) => respond.render("login"))
 app.get("/admin", adminAuth, (request, respond) => (respond.render("admin")))
 app.get("/basic", userAuth, (request, respond) => (respond.render("user")))
 
+
+
 const server = app.listen(PORT, () => console.log(`Successfully connected to Port ${PORT}!`))
 
 process.on("unhandleRejection", error => {
