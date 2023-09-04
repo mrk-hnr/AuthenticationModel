@@ -64,8 +64,29 @@ exports.update = async (request, respond, next) => {
                 .then((user) => {
                     if (user.role !== "admin") {
                         user.role = role
-                        user.save()
+                        user.save((err) => {
+                            if (err) {
+                                respond.status("401").json({
+                                    message: "Change Role Error!",
+                                    error: err.message
+                                })
+                                process.exit(1)
+                            }
+                            respond.status(201).json({
+                                message: "Role Update Success!", user
+                            })
+                        })
+                    } else {
+                        respond.status(400).json({
+                            message: "User already an Admin role!"
+                        })
                     }
+                })
+                .catch((error) => {
+                    respond.status(400).json({
+                        message: "Error! Task Failed!",
+                        error: error.message
+                    })
                 })
         } else {
             respond.status(401).json({
