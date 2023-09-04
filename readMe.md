@@ -3,9 +3,7 @@
 Attempted to create an app that authenticates and manage users with specific roles in Node.js app.
 <br> <br>
 
-Followed the guide from [loginradius](https://www.loginradius.com/blog/engineering/guest-post/nodejs-authentication-guide/)
-
-(Changed/Cleaned it up as I went through)
+Followed the guide from [loginradius](https://www.loginradius.com/blog/engineering/guest-post/nodejs-authentication-guide/) (Changed/Cleaned it up as I went through)
 
 ## Tech used:
 
