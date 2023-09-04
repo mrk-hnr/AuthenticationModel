@@ -12,12 +12,12 @@ exports.register = async (request, respond, next) => {
         await User.create({
             username,
             password: hash,
-        })).then(user =>
+        }).then(user =>
             respond.status(200).json({
                 message: "User Successfully Created!",
                 user,
             })
-        )
+        ))
     } catch(error) {
         respond.status(401).json({
             message: "Failed to create user!",
@@ -43,12 +43,18 @@ exports.login = async (request, respond, next) => {
                 message: "Login Unsuccessful",
                 error: "User Not Found!",
             })
-        }   else {
-            respond.status(200).json({
-                message: "Login Successful!",
-                user,
+        } else {
+            bcrypt.compare(password, user.password)
+                .then(function(result){
+                result ? respond.status(200).json({
+                    message: "Login Successful!",
+                    user,
+                })
+                : respond.status(400).json({
+                    message: "Invalid Password"
+                })
             })
-        } 
+        }
     } catch(error) {
         respond.status(401).json({
             message: "An error occured somewhere...?",
