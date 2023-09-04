@@ -2,11 +2,10 @@
 
 
 // Admin user authentication
-
-require("dotenv").config()
+// require("dotenv").config()
 const jwt = require("jsonwebtoken")
 
-const jwtSecret = process.env.jwtSecrets
+// let jwtSecret = process.env.jwtSecrets
 
 exports.adminAuth = (request, respond, next) => {
     const token = request.cookies.jwt

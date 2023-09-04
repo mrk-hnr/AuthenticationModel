@@ -1,9 +1,12 @@
+require("dotenv").config()
 const User = require("../model/user")
 const bcrypt = require("bcryptjs")
-require("dotenv").config()
+
 const jwt = require("jsonwebtoken")
 
-let jwtSecret = process.env.jwtSecrets
+// let jwtSecret = process.env.jwtSecrets
+let jwtSecret = "INSERT TOKEN HERE"
+
   
 exports.register = async (request, respond, next) => {
     const {username, password} = request.body
@@ -23,19 +26,19 @@ exports.register = async (request, respond, next) => {
                   {
                     expiresIn: maxAge, // 3hrs
                   }
-                );
-                res.cookie("jwt", token, {
+                )
+                respond.cookie("jwt", token, {
                   httpOnly: true,
                   maxAge: maxAge * 1000,
-                });
-                res.status(201).json({
+                })
+                respond.status(201).json({
                   message: "User successfully created",
                   user: user._id,
                   role: user.role,
-                });
+                })
               })
               .catch((error) =>
-                res.status(400).json({
+                respond.status(400).json({
                   message: "User not successfully created",
                   error: error.message,
                 })
@@ -57,7 +60,7 @@ exports.login = async (request, respond, next) => {
     try {
         const user = await User.findOne({username, password})
         if (!user) {
-            respond.status(401).json({
+            respond.status(400).json({
                 message: "Login Unsuccessful",
                 error: "User Not Found!",
             })
@@ -71,15 +74,16 @@ exports.login = async (request, respond, next) => {
                             jwtSecret,
                             {
                                 expiresIn: maxAge,
-                            });
-                        res.cookie("jwt", token, {
+                            })
+                        respond.cookie("jwt", token, {
                             httpOnly: true,
                             maxAge: maxAge * 1000,
-                        });
-                        res.status(201).json({
+                        })
+                        respond.status(201).json({
                             message: "Log In Successful!",
                             user: user._id,
-                        });
+                            role: user.role,
+                        })
                     } else {
                         respond.status(400).json({
                             message: "Log In Failed!"
@@ -161,4 +165,28 @@ exports.deleteUser = async(request, respond, next) => {
                     message: "An Error Occured!",
                     error: error.message
                 })))
+}
+
+// Retrieve users
+
+exports.getUsers = async (request, respond, next) => {
+    await User.find({})
+        .then(users => {
+            const userFunction = users.map(user => {
+                const container = {}
+                container.username = user.username
+                container.role = user.role
+                container.id = user._id
+                return container
+            })
+            respond.status(200).json({
+                user: userFunction
+            })
+        })
+        .catch(error => {
+            respond.status(401).json({
+                message: "Retrieval Failed!",
+                error: error.message
+            })
+        })
 }
