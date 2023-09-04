@@ -7,15 +7,20 @@ const jwt = require("jsonwebtoken")
 const cookieParser = require("cookie-parser")
 const {adminAuth, userAuth} = require("./middleware/auth")
 
+
+app.set("view engine", "ejs")
+
 connectDB()
 
 app.use(express.json())
 app.use(cookieParser())
-
-app.get("/admin", adminAuth, (request, respond) => (respond.send("Admin routes")))
-app.get("/basic", userAuth, (request, respond) => (respond.send("User routes")))
-
 app.use("/api/auth", require("./auth/route"))
+
+app.get("/", (request, respond) => respond.render("home"))
+app.get("/register", (request, respond) => respond.render("register"))
+app.get("/login", (request, respond) => respond.render("login"))
+app.get("/admin", adminAuth, (request, respond) => (respond.render("admin")))
+app.get("/basic", userAuth, (request, respond) => (respond.render("user")))
 
 const server = app.listen(PORT, () => console.log(`Successfully connected to Port ${PORT}!`))
 
