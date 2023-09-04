@@ -53,3 +53,25 @@ exports.login = async (request, respond, next) => {
         })
     }
 }
+
+
+
+exports.update = async (request, respond, next) => {
+    const {role, id} = request.body
+    if (role && id) {
+        if (role === "admin") {
+            await User.findById(id)
+                .then((user) => {
+                    if (user.role !== "admin") {
+                        user.role = role
+                        user.save()
+                    }
+                })
+        } else {
+            respond.status(401).json({
+            message: "Missing Role/ID",
+            error: error.message
+            })
+        }
+    }
+}
