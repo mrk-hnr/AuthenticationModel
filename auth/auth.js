@@ -96,3 +96,18 @@ exports.update = async (request, respond, next) => {
         }
     }
 }
+
+exports.deleteUser = async(request, respond, next) => {
+    const {id} = request.body
+    await User.findById(id)
+        .then(user => user.remove())
+        .respond(user => 
+            respond.status(201).json({
+                message: "User Deleted", user
+            })
+            .catch(error =>
+                respond.status(400).json({
+                    message: "An Error Occured!",
+                    error: error.message
+                })))
+}
