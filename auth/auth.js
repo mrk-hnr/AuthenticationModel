@@ -1,30 +1,48 @@
 const User = require("../model/user")
 const bcrypt = require("bcryptjs")
+require("dotenv").config()
+const jwt = require("jsonwebtoken")
 
+let jwtSecret = process.env.jwtSecrets
+  
 exports.register = async (request, respond, next) => {
     const {username, password} = request.body
     if (password.length < 6) {
         return respond.status(400).json({message: "Password should be more than 6 characters"})
     }
-    try {
-        bcrypt.hash(password, 10)
-        .then(async (hash) =>
-        await User.create({
-            username,
-            password: hash,
-        }).then(user =>
-            respond.status(200).json({
-                message: "User Successfully Created!",
-                user,
+        bcrypt.hash(password, 10).then(async (hash) => {
+            await User.create({
+              username,
+              password: hash,
             })
-        ))
-    } catch(error) {
-        respond.status(401).json({
-            message: "Failed to create user!",
-            error: error.message,
-        })
-    }
-}
+              .then((user) => {
+                const maxAge = 3 * 60 * 60;
+                const token = jwt.sign(
+                  { id: user._id, username, role: user.role },
+                  jwtSecret,
+                  {
+                    expiresIn: maxAge, // 3hrs
+                  }
+                );
+                res.cookie("jwt", token, {
+                  httpOnly: true,
+                  maxAge: maxAge * 1000,
+                });
+                res.status(201).json({
+                  message: "User successfully created",
+                  user: user._id,
+                  role: user.role,
+                });
+              })
+              .catch((error) =>
+                res.status(400).json({
+                  message: "User not successfully created",
+                  error: error.message,
+                })
+              )
+          })
+        }
+    
 
 // Validates credentials of existing users
 
@@ -46,15 +64,36 @@ exports.login = async (request, respond, next) => {
         } else {
             bcrypt.compare(password, user.password)
                 .then(function(result){
-                result ? respond.status(200).json({
-                    message: "Login Successful!",
-                    user,
+                    if (result) {
+                        const maxAge = 3 * 60 * 60;
+                        const token = jwt.sign(
+                            { id: user._id, username, role: user.role },
+                            jwtSecret,
+                            {
+                                expiresIn: maxAge,
+                            });
+                        res.cookie("jwt", token, {
+                            httpOnly: true,
+                            maxAge: maxAge * 1000,
+                        });
+                        res.status(201).json({
+                            message: "Log In Successful!",
+                            user: user._id,
+                        });
+                    } else {
+                        respond.status(400).json({
+                            message: "Log In Failed!"
+                        })
+                    }
+                // result ? respond.status(200).json({
+                //     message: "Login Successful!",
+                //     user,
+                // })
+                // : respond.status(400).json({
+                //     message: "Invalid Password"
                 })
-                : respond.status(400).json({
-                    message: "Invalid Password"
-                })
-            })
-        }
+            }
+        
     } catch(error) {
         respond.status(401).json({
             message: "An error occured somewhere...?",
@@ -64,6 +103,7 @@ exports.login = async (request, respond, next) => {
 }
 
 
+// Update/Change existing user's role
 
 exports.update = async (request, respond, next) => {
     const {role, id} = request.body
@@ -105,6 +145,8 @@ exports.update = async (request, respond, next) => {
         }
     }
 }
+
+// Delete user
 
 exports.deleteUser = async(request, respond, next) => {
     const {id} = request.body
