@@ -12,12 +12,10 @@ Allows token to be placed in .env for security purposes instead of being hard-co
 
 ## Dependencies:
 
-npm install mongoose
-npm install express
-npm install nodemon --save-dev
-npm install bcryptjs
-npm install jsonwebtoken
-npm install cookie-parser
-npm install ejs
-
-npm install dotenv
+npm install mongoose <br>
+npm install express <br>
+npm install nodemon --save-dev <br>
+npm install bcryptjs <br>
+npm install jsonwebtoken <br>
+npm install cookie-parser <br>
+npm install ejs <br>
