@@ -1,4 +1,5 @@
 const User = require("../model/user")
+const bcrypt = require("bcryptjs")
 
 exports.register = async (request, respond, next) => {
     const {username, password} = request.body
@@ -6,10 +7,12 @@ exports.register = async (request, respond, next) => {
         return respond.status(400).json({message: "Password should be more than 6 characters"})
     }
     try {
+        bcrypt.hash(password, 10)
+        .then(async (hash) =>
         await User.create({
             username,
-            password,
-        }).then(user =>
+            password: hash,
+        })).then(user =>
             respond.status(200).json({
                 message: "User Successfully Created!",
                 user,
